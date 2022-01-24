@@ -25,15 +25,10 @@ const App = () => {
       color: 'red',
       largeIconUrl:
         'https://www.gstatic.com/mobilesdk/160503_mobilesdk/logo/2x/firebase_28dp.png',
+      actions: ['ReplyInput'],
+      reply_placeholder_text: 'Write your response...', // (required)
+      reply_button_text: 'Reply',
     });
-
-    /* PushNotification.localNotificationSchedule({
-      channelId:"test-channel",
-      title:"Schedule Notification",
-      message:"It notification preview in after 10 sec click button",
-      date: new Date(Date.now() + 5 * 1000),
-      allowWhileIdle:true, 
-    });*/
   };
 
   const ShedulehandleNotification = () => {
@@ -46,6 +41,7 @@ const App = () => {
       repeatTime: 1,
       largeIconUrl:
         'https://cdn0.iconfinder.com/data/icons/apple-apps/100/Apple_Messages-512.png',
+      actions: ['Yes', 'No'],
     });
   };
 
@@ -53,12 +49,9 @@ const App = () => {
     <View style={styles.Container}>
       <Text>Get Push Notification</Text>
       <View style={styles.button}>
-        <Button
-        
-          title="click me"
-          onPress={handleNotification}
-        />
+        <Button title="click me" onPress={handleNotification} />
       </View>
+      <Text>Get Shedule Push Notification</Text>
       <View style={styles.button}>
         <Button title="click me" onPress={ShedulehandleNotification} />
       </View>
