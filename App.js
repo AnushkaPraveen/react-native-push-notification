@@ -1,10 +1,60 @@
-import React, {useEffect} from 'react';
-import {Button, StyleSheet, Text, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Button, StyleSheet, Text, View, Alert, Modal} from 'react-native';
 import PushNotification from 'react-native-push-notification';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+PushNotification.configure({
+  onNotification: function (notification) {
+    if (notification.title !== '') {
+      let notificationObj = {
+        title: notification.title,
+        message: notification.message,
+      };
+      storeData(notificationObj);
+    } else {
+      Alert.alert('Notification Alert', 'There is a no any notification', [
+        {text: 'OK', onPress: () => console.log('OK Pressed')},
+      ]);
+    }
+  },
+
+  onAction: function (notification) {
+    switch (notification.action) {
+      case 'Yes':
+        Alert.alert('Action Alert', "This is push notification 'Yes' action", [
+          {text: 'OK', onPress: () => console.log('OK Pressed')},
+        ]);
+        break;
+      case 'No':
+        Alert.alert('Action Alert', "This is push notification 'No' action", [
+          {text: 'OK', onPress: () => console.log('OK Pressed')},
+        ]);
+        break;
+      default:
+        null;
+    }
+  },
+
+  requestPermissions: Platform.OS === 'ios',
+});
+
+const storeData = async notificationObj => {
+  try {
+    await AsyncStorage.setItem(
+      'NotificationPayload',
+      JSON.stringify(notificationObj),
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const App = () => {
+  const [notificationPayload, setNotificationPayload] = useState([]);
+  
   useEffect(() => {
     createChannels();
+    getData();
   }, []);
 
   const createChannels = () => {
@@ -25,9 +75,11 @@ const App = () => {
       color: 'red',
       largeIconUrl:
         'https://www.gstatic.com/mobilesdk/160503_mobilesdk/logo/2x/firebase_28dp.png',
-      actions: ['ReplyInput'],
+      /* actions: ['ReplyInput'],
       reply_placeholder_text: 'Write your response...', // (required)
-      reply_button_text: 'Reply',
+      reply_button_text: 'Reply',  */
+      actions: ['Yes', 'No'],
+      invokeApp: false,
     });
   };
 
@@ -45,6 +97,29 @@ const App = () => {
     });
   };
 
+  const getData = async () => {
+    try {
+      console.log("working");
+      const value = await AsyncStorage.getItem('NotificationPayload');
+      const convertedValue = JSON.parse(value);
+      if (value !== null) {
+        setNotificationPayload(convertedValue);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const removeValue = async () => {
+    try {
+      await AsyncStorage.removeItem('NotificationPayload');
+    } catch (e) {
+      console.log(e);
+    }
+
+    console.log('Done.');
+  };
+
   return (
     <View style={styles.Container}>
       <Text>Get Push Notification</Text>
@@ -55,6 +130,20 @@ const App = () => {
       <View style={styles.button}>
         <Button title="click me" onPress={ShedulehandleNotification} />
       </View>
+       <View style={styles.button}>
+        <Button title="Get data" onPress={getData} />
+      </View> 
+      <View style={styles.button}>
+        <Button title="Clear" onPress={removeValue} />
+      </View>
+    
+        <View>
+          <Text>{notificationPayload.title}</Text>
+          <Text>{notificationPayload.message}</Text>
+         
+        </View>
+     
+
     </View>
   );
 };
